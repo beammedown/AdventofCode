@@ -15,6 +15,9 @@ def can_form(test_value, nums):
     # Try using multiplication:
     if can_form(test_value, [a * b] + rest):
         return True
+    # Try using appendation
+    if can_form(test_value, [int((str(a)+str(b)))]+rest):
+        return True
 
     return False
 

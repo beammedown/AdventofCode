@@ -1,61 +1,48 @@
-# TODO: FIX THIS AND GET THE SAME RESULT AS IN gpt.py
-with open("input.txt", "r") as f:
-    data = f.readlines()
+def can_form(test_value, nums):
+    """
+    Recursively checks if it's possible to form test_value by
+    inserting '+' or '*' between the numbers in nums.
+    """
+    # Base case: if there's only one number left, check if it equals test_value.
+    if len(nums) == 1:
+        return nums[0] == test_value
 
-equations: dict[int, list[int]] = {}
+    # Split the list into the first two numbers and the rest.
+    a, b, *rest = nums
+    # Try using addition:
+    if can_form(test_value, [a + b] + rest):
+        return True
+    # Try using multiplication:
+    if can_form(test_value, [a * b] + rest):
+        return True
 
-for item in data:
-    splitted = item.split(":")
-    equations[int(splitted[0])] = [int(item) for item in splitted[1].strip().split(" ")]
-
-working = []
-# possible operators are * (True) and + (False)
-
-"""
-for result in equations.keys():
-    n = len(equations[result])-1
-    combinations = 1 << n
-    combinate = []
-
-    for i in range(combinations):
-        combs = [(i >> j) & 1 == 1 for j in range(n)]
-        combinate.append(combs)
-
-    for item in combinate:
-        subtotal = 0
-        for index, sub in enumerate(equations[result]):
-            if index == 0:
-                subtotal = sub
-                continue
-            if item[index-1]:
-                subtotal *= sub
-                continue
-            else:
-                subtotal += sub
-                continue
-        if subtotal == result:
-            working.append(result)
-            break
-
-print(sum(working))
-
-"""
-
-def canGenerateResult(currSum, idx, result, equation):
-    if idx == len(equation):
-        if currSum == result:
-            return True
-        else:
-            return False
-    return (canGenerateResult(currSum + equation[idx], idx + 1, result, equation) or
-            canGenerateResult(currSum * equation[idx], idx + 1, result, equation))
+    return False
 
 
-def calibrationResult(equations: dict) -> int:
-    totalCalibrationResult = 0
-    for result, equation in equations.items():
-        if canGenerateResult(equation[0], 1, result, equation):
-            totalCalibrationResult += result
-    return totalCalibrationResult
+def solve(input_text):
+    """
+    Processes the input, where each line is of the format:
+    'target: num1 num2 num3 ...'
+    Returns the sum of the target numbers for which a valid operator insertion exists.
+    """
+    total = 0
+    for line in input_text.strip().splitlines():
+        if not line.strip():
+            continue  # skip empty lines
+        # Split the line into the target and the numbers
+        target_str, nums_str = line.split(":")
+        target = int(target_str.strip())
+        nums = [int(x) for x in nums_str.strip().split()]
+        # If the equation can be made to equal the target, add the target to the total.
+        if can_form(target, nums):
+            total += target
+    return total
 
-print(calibrationResult(equations))
+
+if __name__ == "__main__":
+    # Here's the sample input from the problem description.
+    with open("input.txt", "r") as f:
+        input_data = f.read()
+    result = solve(input_data)
+    print("Total calibration result:", result)
+
